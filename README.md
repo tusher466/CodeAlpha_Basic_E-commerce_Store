@@ -138,7 +138,7 @@ OK
 ## 📁 Project Directory Structure
 
 ```
-d:\Task 1\
+Basic E-commerce Store
 ├── ecommerce_project/          # Django project configuration
 │   ├── settings.py             # Settings, apps, static & media definitions
 │   ├── urls.py                 # Main URL router
