@@ -1,0 +1,254 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CodeAlpha Commerce | Premium Online Store{% endblock %}</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-notice-bar text-center">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-none d-md-block text-white-50">
+        <i class="bi bi-shield-check me-1"></i> Official Project for <a href="https://www.codealpha.tech" target="_blank" class="fw-semibold text-white">www.codealpha.tech</a>
+      </div>
+      <div class="mx-auto mx-md-0 fw-medium">
+        <i class="bi bi-tag-fill text-warning me-1"></i> Special Offer: Use coupon <span class="badge bg-light text-dark fw-bold px-2 py-1">ALPHA10</span> for 10% off!
+      </div>
+      <div class="d-none d-md-flex gap-3 text-white-50">
+        <span><i class="bi bi-truck me-1"></i> Free shipping over $50</span>
+        <span><i class="bi bi-headset me-1"></i> 24/7 Support</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation Bar -->
+  <header class="main-navbar">
+    <div class="container">
+      <div class="row align-items-center g-2">
+        
+        <!-- Brand Logo -->
+        <div class="col-6 col-lg-3">
+          <a href="{% url 'store:home' %}" class="brand-logo">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-1 px-2">
+              <i class="bi bi-bag-check-fill fs-5"></i>
+            </span>
+            <span>CodeAlpha</span>
+            <span class="brand-badge d-none d-sm-inline">Store</span>
+          </a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="col-12 col-lg-5 order-3 order-lg-2">
+          <form action="{% url 'store:product_list' %}" method="GET" class="d-flex search-input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search gadgets, audio, apparel..." value="{{ request.GET.q|default:'' }}" aria-label="Search">
+            <button class="btn btn-search" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
+          </form>
+        </div>
+
+        <!-- Navigation Actions (User & Cart) -->
+        <div class="col-6 col-lg-4 order-2 order-lg-3 text-end d-flex justify-content-end align-items-center gap-2">
+          
+          <!-- Explore Products link -->
+          <a href="{% url 'store:product_list' %}" class="nav-action-btn d-none d-md-inline-flex">
+            <i class="bi bi-grid me-1"></i> Catalog
+          </a>
+
+          <!-- User Menu -->
+          {% if user.is_authenticated %}
+            {% if user.is_staff %}
+              <a href="/admin/" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 shadow-sm d-inline-flex align-items-center gap-1 me-1" target="_blank" title="Go to Django Admin Dashboard">
+                <i class="bi bi-shield-lock-fill"></i>
+                <span class="d-none d-md-inline">Admin Panel</span>
+              </a>
+            {% endif %}
+            <div class="dropdown">
+              <button class="nav-action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle fs-5 me-1 text-primary"></i>
+                <span class="d-none d-sm-inline fw-semibold">{{ user.first_name|default:user.username }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                <li><h6 class="dropdown-header">Signed in as <strong>{{ user.username }}</strong></h6></li>
+                <li><a class="dropdown-item" href="{% url 'store:user_info' %}"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit User Information</a></li>
+                <li><a class="dropdown-item" href="{% url 'store:profile' %}"><i class="bi bi-person me-2"></i>My Profile Overview</a></li>
+                <li><a class="dropdown-item" href="{% url 'store:order_history' %}"><i class="bi bi-box-seam me-2"></i>My Orders</a></li>
+                {% if user.is_staff %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-primary fw-bold" href="/admin/" target="_blank"><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'store:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a href="{% url 'store:login' %}" class="nav-action-btn">
+              <i class="bi bi-box-arrow-in-right me-1"></i> <span class="d-none d-sm-inline">Sign In</span>
+            </a>
+            <a href="{% url 'store:register' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 d-none d-sm-inline-flex">
+              Sign Up
+            </a>
+          {% endif %}
+
+          <!-- Cart Button -->
+          <a href="{% url 'store:cart_detail' %}" class="nav-action-btn btn-cart-trigger ms-1" title="Shopping Cart">
+            <i class="bi bi-cart3 fs-5 text-dark"></i>
+            <span class="cart-counter-badge cart-count-badge" style="{% if cart_item_count == 0 %}display:none;{% endif %}">
+              {{ cart_item_count }}
+            </span>
+          </a>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Categories Subnavigation Strip -->
+  <nav class="category-subnav d-none d-lg-block">
+    <div class="container d-flex align-items-center gap-1">
+      <a href="{% url 'store:product_list' %}" class="nav-link {% if not current_category and not request.GET.category %}active{% endif %}">
+        <i class="bi bi-collection"></i> All Categories
+      </a>
+      {% for cat in all_categories %}
+        <a href="{% url 'store:product_list' %}?category={{ cat.slug }}" class="nav-link {% if current_category.slug == cat.slug or request.GET.category == cat.slug %}active{% endif %}">
+          <i class="bi {{ cat.icon|default:'bi-tag' }}"></i> {{ cat.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </nav>
+
+  <!-- Django Messages (Flash alerts) -->
+  <div class="container mt-3">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm d-flex align-items-center gap-2" role="alert">
+          {% if message.tags == 'success' %}
+            <i class="bi bi-check-circle-fill fs-5 text-success"></i>
+          {% elif message.tags == 'error' or message.tags == 'danger' %}
+            <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
+          {% elif message.tags == 'warning' %}
+            <i class="bi bi-exclamation-circle-fill fs-5 text-warning"></i>
+          {% else %}
+            <i class="bi bi-info-circle-fill fs-5 text-info"></i>
+          {% endif %}
+          <div class="flex-grow-1">{{ message }}</div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- Main Content Block -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="custom-toast-container" class="toast-container-custom"></div>
+
+  <!-- Footer -->
+  <footer class="footer-main mt-5">
+    <div class="container">
+      <div class="row g-4">
+        
+        <!-- Col 1: About & CodeAlpha -->
+        <div class="col-lg-4 col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 p-1 px-2">
+              <i class="bi bi-bag-check-fill fs-5"></i>
+            </span>
+            <span class="fs-4 fw-bold text-white">CodeAlpha</span>
+            <span class="brand-badge">Commerce</span>
+          </div>
+          <p class="text-white-50 mb-3">
+            A complete full-stack e-commerce web platform built with Django, SQLite, vanilla HTML5, CSS3, and modern interactive JavaScript.
+          </p>
+          <div class="d-flex align-items-center gap-2 text-white-50 small mb-2">
+            <i class="bi bi-globe text-primary"></i> <a href="https://www.codealpha.tech" target="_blank" class="text-info text-decoration-none">www.codealpha.tech</a>
+          </div>
+          <div class="d-flex align-items-center gap-2 text-white-50 small">
+            <i class="bi bi-shield-lock-fill text-success"></i> Secure 256-bit SSL encrypted checkout
+          </div>
+        </div>
+
+        <!-- Col 2: Quick Links -->
+        <div class="col-lg-2 col-md-6 col-6">
+          <h5 class="footer-heading">Shop Categories</h5>
+          <ul class="footer-links">
+            {% for cat in all_categories|slice:":5" %}
+              <li><a href="{% url 'store:product_list' %}?category={{ cat.slug }}">{{ cat.name }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Col 3: Customer Care -->
+        <div class="col-lg-2 col-md-6 col-6">
+          <h5 class="footer-heading">Customer Care</h5>
+          <ul class="footer-links">
+            <li><a href="{% url 'store:cart_detail' %}">View Shopping Cart</a></li>
+            <li><a href="{% url 'store:order_history' %}">Track Orders</a></li>
+            <li><a href="{% url 'store:login' %}">Account Login</a></li>
+            <li><a href="{% url 'store:register' %}">Create Account</a></li>
+            <li><a href="/admin/" target="_blank">Django Admin</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Newsletter & Guarantee -->
+        <div class="col-lg-4 col-md-6">
+          <h5 class="footer-heading">Stay Connected</h5>
+          <p class="text-white-50 small mb-3">
+            Subscribe to receive product drops, discount codes, and tech release alerts.
+          </p>
+          <div class="input-group mb-3">
+            <input type="email" class="form-control border-0" placeholder="Enter your email" aria-label="Email">
+            <button class="btn btn-primary fw-semibold" type="button">Subscribe</button>
+          </div>
+          <div class="d-flex gap-3 fs-5 text-white-50">
+            <a href="https://www.codealpha.tech" target="_blank" class="text-white-50 hover-text-white"><i class="bi bi-globe"></i></a>
+            <a href="#" class="text-white-50"><i class="bi bi-github"></i></a>
+            <a href="#" class="text-white-50"><i class="bi bi-linkedin"></i></a>
+            <a href="#" class="text-white-50"><i class="bi bi-twitter-x"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Bottom -->
+      <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <p class="mb-0 text-white-50">
+          &copy; 2026 CodeAlpha Commerce. Developed for <a href="https://www.codealpha.tech" target="_blank" class="text-info text-decoration-none">CodeAlpha Tech</a>.
+        </p>
+        <div class="d-flex gap-3 text-white-50 small">
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
+          <span>Shipping & Returns</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5.3.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom Application JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

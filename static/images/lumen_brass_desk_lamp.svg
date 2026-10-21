@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bgGrad" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="60%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <!-- Warm Light Glow -->
+    <radialGradient id="lampGlow" cx="370" cy="270" r="280" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.85"/>
+      <stop offset="25%" stop-color="#fde047" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#eab308" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ca8a04" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Brushed Brass Linear Gradient -->
+    <linearGradient id="brassMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e6ca65"/>
+      <stop offset="20%" stop-color="#fff2a3"/>
+      <stop offset="40%" stop-color="#cca034"/>
+      <stop offset="65%" stop-color="#9a741e"/>
+      <stop offset="85%" stop-color="#dfbe57"/>
+      <stop offset="100%" stop-color="#b88b22"/>
+    </linearGradient>
+
+    <linearGradient id="brassBase" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8c6818"/>
+      <stop offset="25%" stop-color="#e6ca65"/>
+      <stop offset="50%" stop-color="#fff4b8"/>
+      <stop offset="75%" stop-color="#b88b22"/>
+      <stop offset="100%" stop-color="#694e10"/>
+    </linearGradient>
+
+    <linearGradient id="shadeInner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb"/>
+      <stop offset="50%" stop-color="#fef08a"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+
+    <!-- Drop Shadows -->
+    <filter id="shadowGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+    <filter id="softLight" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="35" result="blur"/>
+    </filter>
+  </defs>
+
+  <!-- Dark Elegant Studio Backdrop -->
+  <rect width="800" height="800" fill="url(#bgGrad)"/>
+
+  <!-- Table Surface Highlight -->
+  <ellipse cx="400" cy="720" rx="360" ry="60" fill="#1e293b" opacity="0.4"/>
+  <ellipse cx="400" cy="710" rx="280" ry="35" fill="#000" opacity="0.6"/>
+
+  <!-- Ambient Light Cone on Desk -->
+  <polygon points="340,240 180,680 540,680" fill="url(#lampGlow)" opacity="0.55"/>
+  <ellipse cx="360" cy="670" rx="190" ry="40" fill="url(#lampGlow)" opacity="0.6"/>
+
+  <!-- Lamp Ambient Glow Halo -->
+  <circle cx="340" cy="240" r="140" fill="#fef08a" opacity="0.3" filter="url(#softLight)"/>
+
+  <!-- ================= LAMP GEOMETRY ================= -->
+  <g filter="url(#shadowGlow)">
+
+    <!-- Heavy Solid Brass Base -->
+    <!-- Base Bottom Rim -->
+    <ellipse cx="460" cy="650" rx="140" ry="24" fill="url(#brassBase)"/>
+    <!-- Base Body Cylinder -->
+    <path d="M320,642 L320,622 C320,612 382,604 460,604 C538,604 600,612 600,622 L600,642 C600,652 538,660 460,660 C382,660 320,652 320,642 Z" fill="url(#brassBase)"/>
+    <!-- Base Top Surface -->
+    <ellipse cx="460" cy="622" rx="140" ry="20" fill="url(#brassMetallic)"/>
+    <ellipse cx="460" cy="622" rx="125" ry="16" fill="none" stroke="#fff4b8" stroke-width="2" opacity="0.6"/>
+
+    <!-- Brass Rotary Switch Knob -->
+    <ellipse cx="530" cy="620" rx="14" ry="7" fill="url(#brassBase)"/>
+    <rect x="526" y="612" width="8" height="6" rx="2" fill="#fff2a3"/>
+
+    <!-- Lower Arm Collar & Hinge -->
+    <ellipse cx="430" cy="615" rx="24" ry="10" fill="url(#brassBase)"/>
+    <circle cx="430" cy="600" r="14" fill="url(#brassMetallic)"/>
+    <circle cx="430" cy="600" r="5" fill="#583f0c"/>
+
+    <!-- Lower Curved Brass Stem / Rod -->
+    <path d="M430,600 C430,480 470,380 470,310" fill="none" stroke="url(#brassMetallic)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M428,595 C428,480 468,380 468,310" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+
+    <!-- Middle Articulated Brass Joint & Knurled Nut -->
+    <circle cx="470" cy="310" r="18" fill="url(#brassMetallic)"/>
+    <circle cx="470" cy="310" r="8" fill="#583f0c"/>
+    <rect x="478" y="303" width="14" height="14" rx="3" fill="url(#brassBase)"/>
+
+    <!-- Upper Angled Brass Extension Arm -->
+    <path d="M470,310 C465,240 410,195 350,210" fill="none" stroke="url(#brassMetallic)" stroke-width="16" stroke-linecap="round"/>
+    <path d="M468,305 C463,240 408,197 353,212" fill="none" stroke="#fff" stroke-width="2.5" opacity="0.4"/>
+
+    <!-- Shade Swivel Socket -->
+    <circle cx="350" cy="210" r="14" fill="url(#brassBase)"/>
+
+    <!-- Architectural Brass Cone/Dome Lamp Shade -->
+    <!-- Outer Shade Dome -->
+    <path d="M350,205 L260,260 C250,266 250,278 265,285 C295,296 375,302 415,280 C428,272 422,260 410,252 L360,205 Z" fill="url(#brassMetallic)"/>
+
+    <!-- Shade Rim Lip -->
+    <path d="M260,260 C280,240 370,230 410,252 C422,260 428,272 415,280 C375,302 295,296 265,285 C250,278 250,266 260,260 Z" fill="url(#brassBase)"/>
+
+    <!-- Luminous Warm Inner Reflector Glow -->
+    <ellipse cx="335" cy="270" rx="72" ry="24" fill="url(#shadeInner)" transform="rotate(-12, 335, 270)"/>
+    
+    <!-- Exposed Vintage Edison Bulb Filament Glow -->
+    <ellipse cx="340" cy="265" rx="18" ry="14" fill="#ffffff" filter="url(#shadowGlow)"/>
+    <ellipse cx="340" cy="265" rx="12" ry="9" fill="#fef08a"/>
+
+  </g>
+
+  <!-- Typography / Brand Badge Overlay -->
+  <g opacity="0.85">
+    <text x="50" y="730" font-family="'Inter', -apple-system, sans-serif" font-size="28" font-weight="800" fill="#e6ca65" letter-spacing="1.5">LUMEN</text>
+    <text x="165" y="730" font-family="'Inter', -apple-system, sans-serif" font-size="16" font-weight="500" fill="#94a3b8" letter-spacing="3">BRASS DESK LAMP</text>
+    <text x="50" y="755" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-weight="400" fill="#64748b" letter-spacing="1">ARCHITECTURAL SOLID BRASS • HAND-FINISHED</text>
+  </g>
+</svg>

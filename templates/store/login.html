@@ -1,0 +1,85 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Sign In | CodeAlpha Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+      
+      <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle p-3 mb-2 shadow-sm">
+            <i class="bi bi-person-fill fs-3"></i>
+          </div>
+          <h3 class="fw-bold mb-1">Welcome Back</h3>
+          <p class="text-muted small">Sign in with your username or email address</p>
+        </div>
+
+        <!-- 1-Click Quick Login Section -->
+        <div class="mb-4 p-3 bg-light rounded-4 border">
+          <div class="fw-bold small text-muted text-uppercase mb-2 text-center">
+            <i class="bi bi-lightning-charge-fill text-warning me-1"></i> 1-Click Demo Login (Instant Access)
+          </div>
+          
+          <form method="POST" class="d-flex flex-column gap-2 mb-2">
+            {% csrf_token %}
+            <button type="submit" name="quick_login" value="admin" class="btn btn-warning text-dark fw-bold rounded-pill py-2 shadow-sm d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-shield-lock-fill"></i>
+              <span>Instant Sign-In as Admin (Full Access)</span>
+            </button>
+            <button type="submit" name="quick_login" value="customer" class="btn btn-outline-primary fw-semibold rounded-pill py-2 d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-person-check-fill"></i>
+              <span>Instant Sign-In as Customer (johndoe)</span>
+            </button>
+          </form>
+
+          <div class="d-flex justify-content-between align-items-center text-muted small mt-2 pt-2 border-top">
+            <span>Admin Credentials:</span>
+            <code>admin / admin123</code>
+          </div>
+        </div>
+
+        <div class="text-center position-relative my-3">
+          <hr class="text-muted opacity-25">
+          <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">or enter manually</span>
+        </div>
+
+        <form method="POST">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="id_username" class="form-label small fw-semibold">Username or Email</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" name="username" id="id_username" class="form-control border-start-0" placeholder="admin or admin@codealpha.tech" required autofocus>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="id_password" class="form-label small fw-semibold">Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+              <input type="password" name="password" id="id_password" class="form-control border-start-0" placeholder="Enter password" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 fw-bold mb-3 shadow-sm">
+            Sign In
+          </button>
+        </form>
+
+        <div class="text-center mt-3 pt-3 border-top">
+          <span class="text-muted small">Don't have an account yet? </span>
+          <a href="{% url 'store:register' %}" class="fw-semibold text-primary text-decoration-none small">
+            Create an Account
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

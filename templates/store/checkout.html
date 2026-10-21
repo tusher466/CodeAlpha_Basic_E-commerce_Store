@@ -1,0 +1,245 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Checkout | CodeAlpha Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:cart_detail' %}" class="text-decoration-none">Shopping Cart</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Checkout</li>
+    </ol>
+  </nav>
+
+  <h2 class="fw-bold mb-4">Checkout & Order Processing</h2>
+
+  <form method="POST" id="checkout-form">
+    {% csrf_token %}
+    <div class="row g-4">
+      
+      <!-- Left Column: Shipping & Payment Information -->
+      <div class="col-lg-7">
+        
+        <!-- Step 1: Customer & Shipping Address -->
+        <div class="checkout-card">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2">1</span>
+            <h5 class="fw-bold mb-0">Customer & Shipping Details</h5>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-12">
+              <label for="{{ form.full_name.id_for_label }}" class="form-label small fw-semibold">Full Name *</label>
+              {{ form.full_name }}
+              {% if form.full_name.errors %}
+                <div class="text-danger small mt-1">{{ form.full_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label for="{{ form.email.id_for_label }}" class="form-label small fw-semibold">Email Address *</label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label for="{{ form.phone.id_for_label }}" class="form-label small fw-semibold">Phone Number *</label>
+              {{ form.phone }}
+              {% if form.phone.errors %}
+                <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.address.id_for_label }}" class="form-label small fw-semibold">Street Address *</label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label for="{{ form.city.id_for_label }}" class="form-label small fw-semibold">City *</label>
+              {{ form.city }}
+              {% if form.city.errors %}
+                <div class="text-danger small mt-1">{{ form.city.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label for="{{ form.state.id_for_label }}" class="form-label small fw-semibold">State / Province</label>
+              {{ form.state }}
+            </div>
+
+            <div class="col-md-4">
+              <label for="{{ form.postal_code.id_for_label }}" class="form-label small fw-semibold">Postal / ZIP Code *</label>
+              {{ form.postal_code }}
+              {% if form.postal_code.errors %}
+                <div class="text-danger small mt-1">{{ form.postal_code.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-12">
+              <label for="{{ form.country.id_for_label }}" class="form-label small fw-semibold">Country *</label>
+              {{ form.country }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Payment Method -->
+        <div class="checkout-card">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2">2</span>
+            <h5 class="fw-bold mb-0">Select Payment Method</h5>
+          </div>
+
+          <div class="payment-selection-list">
+            
+            <!-- Cash on Delivery Option -->
+            <label class="payment-method-option payment-radio-item d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-3">
+                <input type="radio" name="payment_method" value="cod" class="form-check-input mt-0" checked>
+                <div>
+                  <div class="fw-bold">Cash on Delivery (COD)</div>
+                  <small class="text-muted">Pay securely with cash upon delivery at your doorstep.</small>
+                </div>
+              </div>
+              <i class="bi bi-cash-stack fs-4 text-success"></i>
+            </label>
+
+            <!-- Credit Card Option -->
+            <label class="payment-method-option payment-radio-item d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-3">
+                <input type="radio" name="payment_method" value="card" class="form-check-input mt-0">
+                <div>
+                  <div class="fw-bold">Credit or Debit Card (Simulated Instant Approval)</div>
+                  <small class="text-muted">Supports Visa, MasterCard, and American Express.</small>
+                </div>
+              </div>
+              <div class="d-flex gap-1 text-primary fs-5">
+                <i class="bi bi-credit-card-2-front"></i>
+              </div>
+            </label>
+
+            <!-- PayPal Option -->
+            <label class="payment-method-option payment-radio-item d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-3">
+                <input type="radio" name="payment_method" value="paypal" class="form-check-input mt-0">
+                <div>
+                  <div class="fw-bold">PayPal / Digital Wallet (Demo)</div>
+                  <small class="text-muted">Instant payment through digital wallet.</small>
+                </div>
+              </div>
+              <i class="bi bi-paypal fs-4 text-primary"></i>
+            </label>
+
+          </div>
+
+          <!-- Card Mock Input fields (revealed if card selected) -->
+          <div id="card-payment-details" class="d-none mt-3 p-3 bg-light rounded-3 border">
+            <h6 class="fw-bold mb-2 small text-muted text-uppercase">Card Information (Demo)</h6>
+            <div class="row g-2">
+              <div class="col-12">
+                <input type="text" class="form-control form-control-sm" placeholder="Card number (4242 •••• •••• 4242)" value="4242 4242 4242 4242">
+              </div>
+              <div class="col-6">
+                <input type="text" class="form-control form-control-sm" placeholder="MM/YY" value="12/28">
+              </div>
+              <div class="col-6">
+                <input type="text" class="form-control form-control-sm" placeholder="CVC" value="321">
+              </div>
+            </div>
+            <small class="text-muted d-block mt-2"><i class="bi bi-shield-check text-success me-1"></i> Demo sandbox mode enabled: no real charge will be incurred.</small>
+          </div>
+
+        </div>
+
+        <!-- Step 3: Order Notes -->
+        <div class="checkout-card">
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="badge bg-primary rounded-circle p-2">3</span>
+            <h5 class="fw-bold mb-0">Order Notes (Optional)</h5>
+          </div>
+          {{ form.order_notes }}
+        </div>
+
+      </div>
+
+      <!-- Right Column: Order Review & Submission -->
+      <div class="col-lg-5">
+        <div class="cart-summary-card">
+          <h5 class="fw-bold mb-3">Review Your Order</h5>
+
+          <!-- Items Overview -->
+          <div class="mb-3 d-flex flex-column gap-2" style="max-height: 280px; overflow-y: auto;">
+            {% for item in cart_items %}
+              <div class="d-flex align-items-center justify-content-between p-2 border rounded-3 bg-light bg-opacity-50">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                  <div>
+                    <div class="fw-semibold small text-truncate" style="max-width: 170px;">{{ item.product.name }}</div>
+                    <small class="text-muted">Qty: {{ item.quantity }} × ${{ item.product.price }}</small>
+                  </div>
+                </div>
+                <div class="fw-bold small">${{ item.get_subtotal }}</div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <hr>
+
+          <!-- Calculations -->
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-semibold">${{ subtotal }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Shipping</span>
+            <span class="fw-semibold">
+              {% if shipping == 0 %}
+                <span class="text-success">FREE</span>
+              {% else %}
+                ${{ shipping }}
+              {% endif %}
+            </span>
+          </div>
+
+          {% if discount_amount > 0 %}
+            <div class="d-flex justify-content-between mb-2 text-success">
+              <span>Coupon Discount ({{ coupon_code }})</span>
+              <span class="fw-semibold">-${{ discount_amount }}</span>
+            </div>
+          {% endif %}
+
+          <hr>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-5 fw-bold">Grand Total</span>
+            <span class="fs-3 fw-extrabold text-primary">${{ total }}</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 fw-bold mb-3 shadow d-flex align-items-center justify-content-center gap-2">
+            <i class="bi bi-shield-check"></i>
+            <span>Confirm & Place Order</span>
+          </button>
+
+          <div class="text-center text-muted small">
+            <i class="bi bi-lock-fill text-success me-1"></i> SSL 256-Bit Encrypted & Protected
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+</div>
+{% endblock %}

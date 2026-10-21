@@ -1,0 +1,107 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}My Orders | CodeAlpha Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:profile' %}" class="text-decoration-none">My Account</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Order History</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Your Order History</h2>
+      <p class="text-muted mb-0">Track shipments, view receipts, and monitor delivery progress.</p>
+    </div>
+    <a href="{% url 'store:product_list' %}" class="btn btn-outline-primary rounded-pill px-4">
+      <i class="bi bi-cart3 me-1"></i> Shop More
+    </a>
+  </div>
+
+  {% if orders %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4">Order ID</th>
+              <th scope="col">Date Placed</th>
+              <th scope="col">Items</th>
+              <th scope="col">Total</th>
+              <th scope="col">Payment</th>
+              <th scope="col">Order Status</th>
+              <th scope="col" class="text-end pe-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td class="ps-4">
+                  <a href="{% url 'store:order_detail' order_number=order.order_number %}" class="fw-bold text-primary font-monospace text-decoration-none">
+                    {{ order.order_number }}
+                  </a>
+                </td>
+                <td class="text-muted small">
+                  {{ order.created_at|date:"M d, Y" }}
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">
+                    {{ order.items.count }} item{{ order.items.count|pluralize }}
+                  </span>
+                </td>
+                <td class="fw-bold text-dark">
+                  ${{ order.total_amount }}
+                </td>
+                <td>
+                  {% if order.is_paid %}
+                    <span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle me-1"></i> Paid</span>
+                  {% else %}
+                    <span class="badge bg-warning-subtle text-warning"><i class="bi bi-hourglass-split me-1"></i> Unpaid</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.status == 'Delivered' %}
+                    <span class="badge bg-success">{{ order.status }}</span>
+                  {% elif order.status == 'Shipped' %}
+                    <span class="badge bg-info text-dark">{{ order.status }}</span>
+                  {% elif order.status == 'Cancelled' %}
+                    <span class="badge bg-danger">{{ order.status }}</span>
+                  {% else %}
+                    <span class="badge bg-primary">{{ order.status }}</span>
+                  {% endif %}
+                </td>
+                <td class="text-end pe-4">
+                  <a href="{% url 'store:order_detail' order_number=order.order_number %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                    View Details
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% else %}
+    <div class="text-center py-5 card border-0 shadow-sm rounded-4">
+      <div class="mb-3">
+        <i class="bi bi-box-seam text-muted display-3"></i>
+      </div>
+      <h4 class="fw-bold mb-2">No orders placed yet</h4>
+      <p class="text-muted mb-4">When you place orders, they will appear here so you can track delivery and download invoices.</p>
+      <div>
+        <a href="{% url 'store:product_list' %}" class="btn btn-primary rounded-pill px-5 fw-semibold">
+          Explore Products
+        </a>
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,304 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | CodeAlpha Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:product_list' %}" class="text-decoration-none">Catalog</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:product_list' %}?category={{ product.category.slug }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ product.name|truncatechars:35 }}</li>
+    </ol>
+  </nav>
+
+  <!-- Product Hero Section -->
+  <div class="row g-4">
+    
+    <!-- Left: Product Image Gallery -->
+    <div class="col-lg-6">
+      <div class="product-detail-gallery position-relative">
+        {% if product.discount_percent > 0 %}
+          <span class="badge-discount fs-6 px-3 py-2">-{{ product.discount_percent }}% OFF</span>
+        {% endif %}
+        {% if product.is_featured %}
+          <span class="badge-featured fs-6 px-3 py-2"><i class="bi bi-star-fill"></i> Featured</span>
+        {% endif %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-detail-img img-fluid">
+      </div>
+    </div>
+
+    <!-- Right: Product Info & Actions -->
+    <div class="col-lg-6">
+      <div class="product-detail-info h-100 d-flex flex-direction-column justify-content-between">
+        <div>
+          <!-- Brand & Category -->
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="text-uppercase fw-bold text-muted small letter-spacing-1">{{ product.brand }}</span>
+            <span class="text-muted">•</span>
+            <a href="{% url 'store:product_list' %}?category={{ product.category.slug }}" class="badge bg-light text-primary text-decoration-none px-2 py-1">
+              {{ product.category.name }}
+            </a>
+          </div>
+
+          <!-- Product Name -->
+          <h2 class="fw-bold mb-3">{{ product.name }}</h2>
+
+          <!-- Rating & Reviews -->
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="text-warning">
+              {% for i in "12345" %}
+                {% if forloop.counter <= product.star_rating %}
+                  <i class="bi bi-star-fill"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="fw-semibold text-dark">{{ product.rating }}</span>
+            <span class="text-muted small">({{ product.review_count }} verified review{{ product.review_count|pluralize }})</span>
+            <a href="#reviews-section" class="small text-primary text-decoration-none ms-2">Write a review</a>
+          </div>
+
+          <hr class="text-muted opacity-25">
+
+          <!-- Price & Savings -->
+          <div class="d-flex align-items-baseline gap-3 mb-3">
+            <span class="product-detail-price">${{ product.price }}</span>
+            {% if product.original_price %}
+              <span class="fs-5 text-muted text-decoration-line-through">${{ product.original_price }}</span>
+              <span class="badge bg-danger-subtle text-danger fw-bold">Save ${{ product.original_price|floatformat:2|add:"-product.price"|default:"discount" }}</span>
+            {% endif %}
+          </div>
+
+          <!-- Stock Status -->
+          <div class="mb-4">
+            {% if product.is_in_stock %}
+              <span class="product-stock-badge stock-in">
+                <i class="bi bi-check-circle-fill"></i> In Stock ({{ product.stock }} units left)
+              </span>
+            {% else %}
+              <span class="product-stock-badge stock-out">
+                <i class="bi bi-x-circle-fill"></i> Out of Stock
+              </span>
+            {% endif %}
+          </div>
+
+          <!-- Short Description -->
+          <p class="text-muted mb-4 lead fs-6">
+            {{ product.short_description|default:product.description|truncatewords:30 }}
+          </p>
+
+          <!-- Add to Cart Form -->
+          <form action="{% url 'store:add_to_cart' product_id=product.id %}" method="POST" class="ajax-add-cart-form">
+            {% csrf_token %}
+            
+            <div class="row g-3 align-items-center mb-4">
+              <div class="col-auto">
+                <label for="quantity" class="form-label fw-semibold mb-0 small text-muted">Quantity:</label>
+              </div>
+              <div class="col-auto">
+                <div class="qty-input-group qty-stepper-container">
+                  <button type="button" class="qty-btn qty-btn-minus" aria-label="Decrease quantity">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <input type="number" name="quantity" id="quantity" class="qty-input" value="1" min="1" max="{{ product.stock }}">
+                  <button type="button" class="qty-btn qty-btn-plus" aria-label="Increase quantity">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap gap-3">
+              <button type="submit" class="btn btn-primary btn-lg rounded-pill px-4 flex-grow-1 fw-semibold d-inline-flex align-items-center justify-content-center gap-2" {% if not product.is_in_stock %}disabled{% endif %}>
+                <i class="bi bi-cart-plus-fill fs-5"></i>
+                <span>Add to Shopping Cart</span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="border-top pt-3 mt-4">
+          <div class="row g-2 text-muted small">
+            <div class="col-6 d-flex align-items-center gap-2">
+              <i class="bi bi-truck text-primary fs-5"></i>
+              <span>Free shipping over $50</span>
+            </div>
+            <div class="col-6 d-flex align-items-center gap-2">
+              <i class="bi bi-shield-check text-success fs-5"></i>
+              <span>2-Year Warranty Included</span>
+            </div>
+            <div class="col-6 d-flex align-items-center gap-2">
+              <i class="bi bi-arrow-repeat text-info fs-5"></i>
+              <span>30-Day Easy Returns</span>
+            </div>
+            <div class="col-6 d-flex align-items-center gap-2">
+              <i class="bi bi-credit-card text-warning fs-5"></i>
+              <span>Encrypted Secure Checkout</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs: Description & Reviews -->
+  <div class="card border-0 shadow-sm rounded-4 mt-5 p-4" id="reviews-section">
+    <ul class="nav nav-pills mb-4 border-bottom pb-3" id="productTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-pill fw-semibold" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc-pane" type="button" role="tab">
+          <i class="bi bi-file-text me-1"></i> Full Description
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill fw-semibold" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-pane" type="button" role="tab">
+          <i class="bi bi-chat-left-heart me-1"></i> Reviews ({{ product.reviews.count }})
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="productTabContent">
+      
+      <!-- Description Pane -->
+      <div class="tab-pane fade show active" id="desc-pane" role="tabpanel">
+        <h5 class="fw-bold mb-3">Product Overview</h5>
+        <p class="text-secondary lh-lg mb-4">{{ product.description }}</p>
+
+        <h6 class="fw-bold mb-2">Key Highlights:</h6>
+        <ul class="list-unstyled text-secondary">
+          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Premium construction crafted from durable materials</li>
+          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> High efficiency performance with ergonomic design</li>
+          <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Covered by CodeAlpha Quality Guarantee and manufacturer warranty</li>
+        </ul>
+      </div>
+
+      <!-- Reviews Pane -->
+      <div class="tab-pane fade" id="reviews-pane" role="tabpanel">
+        <div class="row g-4">
+          
+          <!-- Existing Reviews List -->
+          <div class="col-lg-7">
+            <h5 class="fw-bold mb-3">Customer Feedback</h5>
+            {% if reviews %}
+              <div class="d-flex flex-column gap-3">
+                {% for rev in reviews %}
+                  <div class="p-3 border rounded-3 bg-light bg-opacity-50">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <div class="fw-semibold text-dark">{{ rev.user.first_name|default:rev.user.username }}</div>
+                      <div class="text-muted small">{{ rev.created_at|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="text-warning small mb-2">
+                      {% for i in "12345" %}
+                        {% if forloop.counter <= rev.rating %}
+                          <i class="bi bi-star-fill"></i>
+                        {% else %}
+                          <i class="bi bi-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    {% if rev.title %}
+                      <div class="fw-bold small mb-1">{{ rev.title }}</div>
+                    {% endif %}
+                    <p class="text-secondary small mb-0">{{ rev.comment }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted">No reviews yet for this product. Be the first to share your thoughts!</p>
+            {% endif %}
+          </div>
+
+          <!-- Submit Review Form -->
+          <div class="col-lg-5">
+            <div class="card border p-3 rounded-3 bg-white shadow-sm">
+              <h5 class="fw-bold mb-3">Leave a Review</h5>
+              {% if user.is_authenticated %}
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="mb-3">
+                    <label for="{{ review_form.rating.id_for_label }}" class="form-label small fw-semibold">Rating</label>
+                    {{ review_form.rating }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="{{ review_form.title.id_for_label }}" class="form-label small fw-semibold">Review Headline</label>
+                    {{ review_form.title }}
+                  </div>
+                  <div class="mb-3">
+                    <label for="{{ review_form.comment.id_for_label }}" class="form-label small fw-semibold">Review Comment</label>
+                    {{ review_form.comment }}
+                  </div>
+                  <button type="submit" class="btn btn-primary rounded-pill w-100 fw-semibold">
+                    Submit Review
+                  </button>
+                </form>
+              {% else %}
+                <div class="text-center py-4">
+                  <i class="bi bi-shield-lock fs-1 text-muted mb-2 d-block"></i>
+                  <p class="text-muted small mb-3">Please sign in to submit a verified product review.</p>
+                  <a href="{% url 'store:login' %}?next={{ request.path }}" class="btn btn-outline-primary rounded-pill px-4">
+                    Log In to Review
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Related Products Section -->
+  {% if related_products %}
+    <section class="mt-5">
+      <h4 class="fw-bold mb-4">Related Products You Might Like</h4>
+      <div class="row g-4">
+        {% for rel in related_products %}
+          <div class="col-12 col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="product-card">
+              <div class="product-thumb-wrapper">
+                {% if rel.discount_percent > 0 %}
+                  <span class="badge-discount">-{{ rel.discount_percent }}%</span>
+                {% endif %}
+                <a href="{% url 'store:product_detail' slug=rel.slug %}">
+                  <img src="{{ rel.image_url }}" alt="{{ rel.name }}" class="product-thumb" loading="lazy">
+                </a>
+              </div>
+              <div class="product-card-body">
+                <a href="{% url 'store:product_detail' slug=rel.slug %}" class="product-title" title="{{ rel.name }}">
+                  {{ rel.name }}
+                </a>
+                <div class="product-card-bottom mt-auto">
+                  <div class="product-price-row">
+                    <span class="product-price">${{ rel.price }}</span>
+                  </div>
+                  <div class="product-card-footer">
+                    <form action="{% url 'store:add_to_cart' product_id=rel.id %}" method="POST" class="ajax-add-cart-form flex-grow-1">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn-add-cart w-100">
+                        <i class="bi bi-cart-plus"></i> Add
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+</div>
+{% endblock %}

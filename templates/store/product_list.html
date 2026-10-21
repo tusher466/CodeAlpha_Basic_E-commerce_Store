@@ -1,0 +1,227 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if current_category %}{{ current_category.name }} | {% elif query %}Search: "{{ query }}" | {% endif %}Product Catalog | CodeAlpha Commerce
+{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:product_list' %}" class="text-decoration-none">Catalog</a></li>
+      {% if current_category %}
+        <li class="breadcrumb-item active" aria-current="page">{{ current_category.name }}</li>
+      {% elif query %}
+        <li class="breadcrumb-item active" aria-current="page">Search: "{{ query }}"</li>
+      {% else %}
+        <li class="breadcrumb-item active" aria-current="page">All Products</li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+        <h5 class="fw-bold mb-3 d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-funnel me-1 text-primary"></i> Categories</span>
+          {% if current_category or query or sort_by != 'newest' %}
+            <a href="{% url 'store:product_list' %}" class="small text-danger text-decoration-none fw-normal">Reset</a>
+          {% endif %}
+        </h5>
+
+        <div class="list-group list-group-flush">
+          <a href="{% url 'store:product_list' %}{% if query %}?q={{ query }}{% endif %}" 
+             class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-2 rounded-2 {% if not current_category %}active bg-primary text-white{% endif %}">
+            <span><i class="bi bi-grid-fill me-2"></i> All Products</span>
+          </a>
+
+          {% for cat in categories %}
+            <a href="{% url 'store:product_list' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 px-2 rounded-2 {% if current_category.slug == cat.slug %}active bg-primary text-white{% endif %}">
+              <span><i class="bi {{ cat.icon|default:'bi-tag' }} me-2"></i> {{ cat.name }}</span>
+              <span class="badge {% if current_category.slug == cat.slug %}bg-white text-primary{% else %}bg-light text-muted{% endif %} rounded-pill">
+                {{ cat.products.count }}
+              </span>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Quick Help / Promo banner -->
+      <div class="card border-0 bg-primary text-white rounded-4 p-3 shadow-sm d-none d-lg-block">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="bi bi-percent fs-3 text-warning"></i>
+          <h6 class="fw-bold mb-0">Use Code ALPHA10</h6>
+        </div>
+        <p class="small text-white-50 mb-0">Get 10% instant discount on every product. Add items to your cart and enter code at checkout.</p>
+      </div>
+    </div>
+
+    <!-- Main Catalog View -->
+    <div class="col-lg-9">
+      
+      <!-- Filter and Sort Header Bar -->
+      <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+          <div>
+            <h4 class="fw-bold mb-0">
+              {% if current_category %}
+                {{ current_category.name }}
+              {% elif query %}
+                Results for "{{ query }}"
+              {% else %}
+                All Products
+              {% endif %}
+            </h4>
+            <span class="text-muted small">Showing {{ total_results }} product{{ total_results|pluralize }}</span>
+          </div>
+
+          <!-- Sort Form -->
+          <form method="GET" class="d-flex align-items-center gap-2">
+            {% if current_category %}
+              <input type="hidden" name="category" value="{{ current_category.slug }}">
+            {% endif %}
+            {% if query %}
+              <input type="hidden" name="q" value="{{ query }}">
+            {% endif %}
+            
+            <label for="sort" class="text-nowrap small text-muted fw-semibold">Sort By:</label>
+            <select name="sort" id="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+              <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+              <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+              <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Rated</option>
+              <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name: A to Z</option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      {% if products %}
+        <div class="row g-4">
+          {% for product in products %}
+            <div class="col-12 col-sm-6 col-md-4 d-flex align-items-stretch">
+              <div class="product-card">
+                <div class="product-thumb-wrapper">
+                  {% if product.discount_percent > 0 %}
+                    <span class="badge-discount">-{{ product.discount_percent }}%</span>
+                  {% endif %}
+                  {% if product.is_featured %}
+                    <span class="badge-featured"><i class="bi bi-star-fill"></i> Best</span>
+                  {% endif %}
+                  <a href="{% url 'store:product_detail' slug=product.slug %}">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-thumb" loading="lazy">
+                  </a>
+                </div>
+
+                <div class="product-card-body">
+                  <div class="product-brand">{{ product.brand }}</div>
+                  <a href="{% url 'store:product_detail' slug=product.slug %}" class="product-title" title="{{ product.name }}">
+                    {{ product.name }}
+                  </a>
+
+                  <div class="product-rating">
+                    <div class="stars">
+                      {% for i in "12345" %}
+                        {% if forloop.counter <= product.star_rating %}
+                          <i class="bi bi-star-fill"></i>
+                        {% else %}
+                          <i class="bi bi-star"></i>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <span class="review-count">({{ product.review_count }})</span>
+                  </div>
+
+                  <div class="product-card-bottom mt-auto">
+                    <div class="product-price-row">
+                      <span class="product-price">${{ product.price }}</span>
+                      {% if product.original_price %}
+                        <span class="product-original-price">${{ product.original_price }}</span>
+                      {% endif %}
+                    </div>
+
+                    <div class="product-card-footer">
+                      <form action="{% url 'store:add_to_cart' product_id=product.id %}" method="POST" class="ajax-add-cart-form flex-grow-1">
+                        {% csrf_token %}
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn-add-cart w-100" {% if not product.is_in_stock %}disabled{% endif %}>
+                          <i class="bi bi-cart-plus"></i>
+                          <span>{% if product.is_in_stock %}Add to Cart{% else %}Sold Out{% endif %}</span>
+                        </button>
+                      </form>
+                      <a href="{% url 'store:product_detail' slug=product.slug %}" class="btn-view-detail" title="View details">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if page_obj.has_other_pages %}
+          <nav aria-label="Catalog pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category.slug }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" aria-label="Previous">
+                    &laquo; Previous
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Previous</span></li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li class="page-item active"><span class="page-link bg-primary border-primary">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if current_category %}&category={{ current_category.slug }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category.slug }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" aria-label="Next">
+                    Next &raquo;
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5 card border-0 shadow-sm rounded-4">
+          <div class="mb-3">
+            <i class="bi bi-search text-muted display-3"></i>
+          </div>
+          <h4 class="fw-bold">No products found</h4>
+          <p class="text-muted">We couldn't find any items matching your current filters or search keywords.</p>
+          <div class="mt-3">
+            <a href="{% url 'store:product_list' %}" class="btn btn-primary rounded-pill px-4">
+              Clear Filters & View All
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart | CodeAlpha Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'store:home' %}" class="text-decoration-none">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'store:product_list' %}" class="text-decoration-none">Catalog</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+    </ol>
+  </nav>
+
+  <h2 class="fw-bold mb-4">Your Shopping Cart</h2>
+
+  <!-- Non-empty Cart Wrapper -->
+  <div id="cart-content-wrapper" class="{% if not cart_items %}d-none{% endif %}">
+    <div class="row g-4">
+      
+      <!-- Cart Items Table Column -->
+      <div class="col-lg-8">
+        <div class="cart-table-wrapper p-3 p-md-4">
+          
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" style="min-width: 260px;">Product</th>
+                  <th scope="col" class="text-center">Price</th>
+                  <th scope="col" class="text-center" style="min-width: 130px;">Quantity</th>
+                  <th scope="col" class="text-end">Subtotal</th>
+                  <th scope="col" class="text-end" style="width: 50px;"></th>
+                </tr>
+              </thead>
+              <tbody id="cart-table-body">
+                {% for item in cart_items %}
+                  <tr id="cart-item-row-{{ item.id }}">
+                    <!-- Product Info -->
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="cart-item-img">
+                        <div>
+                          <a href="{% url 'store:product_detail' slug=item.product.slug %}" class="fw-semibold text-dark text-decoration-none">
+                            {{ item.product.name }}
+                          </a>
+                          <div class="small text-muted">{{ item.product.category.name }}</div>
+                          {% if item.product.stock <= 5 %}
+                            <small class="text-danger fw-semibold"><i class="bi bi-exclamation-circle"></i> Only {{ item.product.stock }} left</small>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Price -->
+                    <td class="text-center fw-medium">${{ item.product.price }}</td>
+
+                    <!-- Quantity with Stepper -->
+                    <td class="text-center">
+                      <div class="qty-input-group d-inline-flex">
+                        <button type="button" class="qty-btn cart-qty-btn" data-action="decrease" data-item-id="{{ item.id }}" aria-label="Decrease quantity">
+                          <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" 
+                               id="cart-qty-{{ item.id }}" 
+                               class="qty-input cart-qty-input" 
+                               value="{{ item.quantity }}" 
+                               min="1" 
+                               max="{{ item.product.stock }}" 
+                               data-item-id="{{ item.id }}"
+                               aria-label="Item quantity">
+                        <button type="button" class="qty-btn cart-qty-btn" data-action="increase" data-item-id="{{ item.id }}" aria-label="Increase quantity">
+                          <i class="bi bi-plus"></i>
+                        </button>
+                      </div>
+                    </td>
+
+                    <!-- Subtotal -->
+                    <td class="text-end fw-bold text-dark" id="cart-item-subtotal-{{ item.id }}">
+                      ${{ item.get_subtotal }}
+                    </td>
+
+                    <!-- Remove Button -->
+                    <td class="text-end">
+                      <a href="{% url 'store:remove_from_cart' item_id=item.id %}" 
+                         class="text-danger cart-remove-btn fs-5 p-1 text-decoration-none" 
+                         data-item-id="{{ item.id }}" 
+                         title="Remove item">
+                        <i class="bi bi-trash3"></i>
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <a href="{% url 'store:product_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+              <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Cart Summary Column -->
+      <div class="col-lg-4">
+        <div class="cart-summary-card">
+          <h5 class="fw-bold mb-3">Order Summary</h5>
+
+          <!-- Free Shipping Progress -->
+          <div class="mb-3 p-3 bg-light rounded-3">
+            <div class="small mb-2" id="free-shipping-msg">
+              {% if subtotal >= 50.00 %}
+                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> You have unlocked FREE Shipping!</span>
+              {% else %}
+                Add <strong>${{ subtotal|floatformat:2|add:"-50.00"|default:"9.99" }}</strong> more to qualify for <strong>FREE Shipping</strong>!
+              {% endif %}
+            </div>
+            <div class="free-shipping-progress">
+              <div id="free-shipping-progress-bar" class="free-shipping-bar" style="width: {% if subtotal >= 50 %}100%{% else %}{{ subtotal|floatformat:0 }}%{% endif %};"></div>
+            </div>
+          </div>
+
+          <!-- Price Breakdown -->
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-semibold" id="cart-subtotal-val">${{ subtotal }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Estimated Shipping</span>
+            <span class="fw-semibold" id="cart-shipping-val">
+              {% if shipping == 0 %}
+                <span class="text-success">FREE</span>
+              {% else %}
+                ${{ shipping }}
+              {% endif %}
+            </span>
+          </div>
+
+          {% if discount_amount > 0 %}
+            <div class="d-flex justify-content-between mb-2 text-success">
+              <span>Coupon Discount ({{ coupon_code }})</span>
+              <span class="fw-semibold" id="cart-discount-val">-${{ discount_amount }}</span>
+            </div>
+          {% endif %}
+
+          <hr>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-5 fw-bold">Total</span>
+            <span class="fs-4 fw-extrabold text-primary" id="cart-total-val">${{ total }}</span>
+          </div>
+
+          <!-- Checkout CTA -->
+          <a href="{% url 'store:checkout' %}" class="btn btn-primary btn-lg rounded-pill w-100 fw-bold mb-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
+            <span>Proceed to Checkout</span>
+            <i class="bi bi-arrow-right"></i>
+          </a>
+
+          <!-- Coupon Code Box -->
+          <div class="border-top pt-3 mt-3">
+            <label class="form-label small fw-semibold text-muted">Promo / Coupon Code</label>
+            {% if coupon_code %}
+              <div class="d-flex justify-content-between align-items-center bg-light p-2 rounded-3 border">
+                <span class="badge bg-success"><i class="bi bi-tag-fill me-1"></i> {{ coupon_code }} Applied</span>
+                <a href="{% url 'store:remove_coupon' %}" class="btn btn-sm btn-link text-danger text-decoration-none">Remove</a>
+              </div>
+            {% else %}
+              <form action="{% url 'store:apply_coupon' %}" method="POST" class="d-flex gap-2">
+                {% csrf_token %}
+                <input type="text" name="coupon_code" class="form-control form-control-sm text-uppercase" placeholder="e.g. ALPHA10" required>
+                <button type="submit" class="btn btn-sm btn-dark px-3 fw-semibold">Apply</button>
+              </form>
+              <small class="text-muted d-block mt-1">Try codes: <code>ALPHA10</code>, <code>WELCOME20</code></small>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Empty Cart State -->
+  <div id="cart-empty-state" class="text-center py-5 card border-0 shadow-sm rounded-4 {% if cart_items %}d-none{% endif %}">
+    <div class="mb-3">
+      <i class="bi bi-cart-x text-muted display-2"></i>
+    </div>
+    <h3 class="fw-bold mb-2">Your cart is currently empty</h3>
+    <p class="text-muted mb-4">Looks like you haven't added any items to your shopping cart yet.</p>
+    <div>
+      <a href="{% url 'store:product_list' %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-semibold">
+        Start Shopping Now
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
